@@ -11,7 +11,7 @@ public class Bullet : MonoBehaviour
         timer += Time.deltaTime;
         transform.position += transform.forward * speed * Time.deltaTime;
 
-        if (timer >= 1f) // Перевірка, чи куля летить принаймні 1 секунду
+        if (timer >= 1f) // Перевірка, чи куля летить 1 секунду
         {
             BulletPool.instance.ReturnBullet(gameObject);
             timer = 0f; // Скидання таймера
