@@ -1,29 +1,44 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class BulletPool : MonoBehaviour
 {
-    public GameObject bulletPrefab;
+    public GameObject[] bulletPrefab;
     public byte poolSize = 10;
     private Queue<GameObject> bullets;
+    private List<TrailRenderer> bulletTrailRenderers;
     public static BulletPool instance;
 
-    private void Awake()
+    private async void Awake()
     {
         instance = this;
+        await InitializePoolAsync();
     }
-    private void Start()
+
+    private async Task InitializePoolAsync()
     {
         bullets = new Queue<GameObject>();
+        bulletTrailRenderers = new List<TrailRenderer>();
+
         for (byte i = 0; i < poolSize; i++)
         {
-            GameObject bullet = Instantiate(bulletPrefab);
-            bullet.SetActive(false);
+            GameObject bullet = await CreateBulletAsync();
             bullets.Enqueue(bullet);
         }
     }
+    private async Task<GameObject> CreateBulletAsync()
+    {
+        GameObject bullet = Instantiate(bulletPrefab[SetPlayerIndex.CharacterIndex - 1]);
+        bullet.SetActive(false);
 
-    public GameObject GetBullet()
+        TrailRenderer trailRenderer = bullet.GetComponentInChildren<TrailRenderer>();
+        bulletTrailRenderers.Add(trailRenderer);
+
+        await Task.Yield();
+        return bullet;
+    }
+    public async Task<GameObject> GetBulletAsync()
     {
         if (bullets.Count > 0)
         {
@@ -33,7 +48,7 @@ public class BulletPool : MonoBehaviour
         }
         else
         {
-            GameObject bullet = Instantiate(bulletPrefab);
+            GameObject bullet = await CreateBulletAsync();
             bullet.SetActive(true);
             return bullet;
         }
@@ -42,8 +57,12 @@ public class BulletPool : MonoBehaviour
     public void ReturnBullet(GameObject bullet)
     {
         bullet.SetActive(false);
+
+        foreach (TrailRenderer trailRenderer in bulletTrailRenderers)
+        {
+            trailRenderer.Clear();
+        }
+
         bullets.Enqueue(bullet);
     }
 }
-
-

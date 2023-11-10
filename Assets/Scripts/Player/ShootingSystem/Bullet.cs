@@ -3,18 +3,18 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     public byte speed = 15;
-    //public byte maxDistance = 12;
     private float timer = 0f;
+    public float maxLifeTime;
 
     private void Update()
     {
         timer += Time.deltaTime;
         transform.position += transform.forward * speed * Time.deltaTime;
 
-        if (timer >= 1f) // Перевірка, чи куля летить 1 секунду
+        if (timer >= maxLifeTime)
         {
             BulletPool.instance.ReturnBullet(gameObject);
-            timer = 0f; // Скидання таймера
+            timer = 0f;
         }
     }
 }

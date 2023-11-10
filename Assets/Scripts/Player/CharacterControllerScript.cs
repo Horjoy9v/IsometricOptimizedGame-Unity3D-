@@ -12,7 +12,7 @@ public class CharacterControllerScript : MonoBehaviour
     public CanvasController canvasController;
 
     [Header("Настройки физики")]
-    private byte moveSpeed = 4;
+    public byte moveSpeed = 4;
     private byte rotationSpeed = 10;
     private float gravity = -1.25f;
     
@@ -22,16 +22,19 @@ public class CharacterControllerScript : MonoBehaviour
     [Header("Джойстик")]
     public CustomJoystick mobileJoystick;
     
+    private void Awake()
+    {
+        mobileJoystick = GameObject.FindWithTag("Joystick").GetComponent<CustomJoystick>();
+        canvasController = GameObject.FindWithTag("Hellper").GetComponent<CanvasController>();
+        bulletCountSlider = GameObject.FindWithTag("Slider(Test)").GetComponent<Slider>();
+        bulletCountSlider.onValueChanged.AddListener(AdjustVariableFromSlider);
+        controller = GetComponent<CharacterController>();
+        characterTransform = transform;
+        characterRotation = Quaternion.Euler(0, 45, 0);
+        fireRateDecorator = new FasterFireRateDecorator(new BasicWeapon());
+        canvasController.fasterFireRateDecorator = fireRateDecorator;
+    }
 
-private void Awake()
-{
-    bulletCountSlider.onValueChanged.AddListener(AdjustVariableFromSlider);
-    controller = GetComponent<CharacterController>();
-    characterTransform = transform;
-    characterRotation = Quaternion.Euler(0, 45, 0);
-    fireRateDecorator = new FasterFireRateDecorator(new BasicWeapon());
-    canvasController.fasterFireRateDecorator = fireRateDecorator;
-}
     private void FixedUpdate()
     {
         HandleMovement();
@@ -48,10 +51,8 @@ private void Awake()
         {
             moveDirection.Normalize();
         }
-        if (!controller.isGrounded)
-        {
-            moveDirection.y += gravity;
-        }
+
+        moveDirection.y = gravity;
 
         controller.Move(moveDirection * moveSpeed * Time.fixedDeltaTime);
 
@@ -63,6 +64,7 @@ private void Awake()
             characterTransform.rotation = Quaternion.Slerp(characterTransform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
         }
     }
+
     private void AdjustVariableFromSlider(float sliderValue)
     {
         bulletCount = (byte)Mathf.RoundToInt(sliderValue);
