@@ -45,16 +45,15 @@ public class CharacterControllerScript : MonoBehaviour
         float horizontalInput = mobileJoystick.Horizontal();
         float verticalInput = mobileJoystick.Vertical();
         Vector3 moveInput = new Vector3(horizontalInput, 0, verticalInput);
-        Vector3 moveDirection = characterRotation * moveInput;
 
-        if (moveDirection.sqrMagnitude > 1)
+        moveInput.y = gravity;
+
+        if (moveInput.sqrMagnitude > 1)
         {
-            moveDirection.Normalize();
+            moveInput.Normalize();
         }
 
-        moveDirection.y = gravity;
-
-        controller.Move(moveDirection * moveSpeed * Time.fixedDeltaTime);
+        controller.Move(characterRotation * moveInput * moveSpeed * Time.fixedDeltaTime);
 
         Vector3 joystickDir = new Vector3(horizontalInput, 0, verticalInput).normalized;
         if (joystickDir != Vector3.zero)
@@ -69,5 +68,4 @@ public class CharacterControllerScript : MonoBehaviour
     {
         bulletCount = (byte)Mathf.RoundToInt(sliderValue);
     }
-
 }
